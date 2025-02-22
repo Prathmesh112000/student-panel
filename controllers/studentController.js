@@ -2,7 +2,11 @@ import { StudentModel } from "../db/index.js"
 
 const getAllStudents=async(req,res)=>{
     try {
-    const allStudentsData=await StudentModel.findAll()
+    const allStudentsData=await StudentModel.findAll({
+        where:{
+            status:"active"
+        }
+    })
     return res.status(200).json({
         success: true,
         data: allStudentsData,
