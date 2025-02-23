@@ -1,27 +1,60 @@
 import { StudentModel } from "../db/index.js"
 
-const getAllStudents=async(req,res)=>{
+// const getAllStudents=async(req,res)=>{
+//     try {
+//     const allStudentsData=await StudentModel.findAll({
+//         where:{
+//             status:"active"
+//         }
+//     })
+//     return res.status(200).json({
+//         success: true,
+//         data: allStudentsData,
+//         message: "Students fetched successfully"
+//     });
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             message: "Error fetching students",
+//             error: error.message
+//         });  
+//     }
+    
+// }
+
+const getAllStudents = async (req, res) => {
     try {
-    const allStudentsData=await StudentModel.findAll({
-        where:{
-            status:"active"
-        }
-    })
-    return res.status(200).json({
+      let { page, limit } = req.query;
+  
+      // Convert to numbers and set defaults
+      page = parseInt(page) || 1;
+      limit = parseInt(limit) || 10;
+      const offset = (page - 1) * limit;
+  
+      // Fetch students with pagination
+      const { count, rows: allStudentsData } = await StudentModel.findAndCountAll({
+        where: { status: "active" },
+        limit,
+        offset,
+      });
+  
+      return res.status(200).json({
         success: true,
         data: allStudentsData,
-        message: "Students fetched successfully"
-    });
+        currentPage: page,
+        totalPages: Math.ceil(count / limit),
+        totalRecords: count,
+        message: "Students fetched successfully",
+      });
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Error fetching students",
-            error: error.message
-        });  
+      return res.status(500).json({
+        success: false,
+        message: "Error fetching students",
+        error: error.message,
+      });
     }
-    
-}
-
+  };
+  
 const addStudent =async(req,res)=>{
     try {
         // Validate the request body
